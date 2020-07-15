@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.mycompany.projectdvrptw.entity;
+package com.mymapper.projectdvrptw.entity;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -18,8 +18,23 @@ public class MapaPrincipal {
     private List<Vehicle> allVehicles = new ArrayList<>();
     private BigDecimal tempoMaximo = BigDecimal.ZERO;
     private BigDecimal tempoDecorrido = BigDecimal.ZERO;
+    private int capacityMax = 0;
     private List<Pedido> allPedidos = new ArrayList<>();
-
+    private VRPTW problem = new VRPTW();
+    
+    public void capacityTotal(){
+        this.capacityMax = 0;
+        if(!getAllPedidos().isEmpty()){
+            for(Pedido pedido : getAllPedidos()){
+                this.capacityMax += pedido.getQtd();
+            }
+        }
+    }
+    
+    public void createVehiclesInMap(){
+        
+    }
+    
     //<editor-fold defaultstate="collapsed" desc="Getters e Setters">
     public List<Centroid> getZonas() {
         return zonas;

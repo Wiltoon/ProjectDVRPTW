@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.mycompany.projectdvrptw.entity;
+package com.mymapper.projectdvrptw.entity;
 
 import java.awt.Point;
 import java.math.BigDecimal;
@@ -15,12 +15,41 @@ import java.util.List;
  * @author Wilton Costa
  */
 public class Vehicle {
+    private int id;
     private int capacidade;
     private BigDecimal combustivel;
     private Point localAtual = new Point();
     private List<Route> rotasDoVeiculo = new ArrayList<>();
+    private Route rotaSelecionada = new Route();
+
+    //<editor-fold defaultstate="collapsed" desc="Constructor">
+    public Vehicle(int id, int capacidade, BigDecimal combustivel) {
+        this.id = id;
+        this.capacidade = capacidade;
+        this.combustivel = combustivel;
+    }
+    
+    public Vehicle() {
+        this.id = 0;
+        this.capacidade = 0;
+        this.combustivel = BigDecimal.ZERO;
+        moveVehicle(new Point(0,0));
+    }
+    
+    //</editor-fold>
+    
+    public void moveVehicle(Point destiny){
+        this.localAtual = destiny;
+    }
 
     //<editor-fold defaultstate="collapsed" desc="Getters e Setters">
+    public int getId() {    
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public int getCapacidade() {
         return capacidade;
     }
@@ -28,6 +57,15 @@ public class Vehicle {
     public void setCapacidade(int capacidade) {
         this.capacidade = capacidade;
     }
+
+    public Route getRotaSelecionada() {
+        return rotaSelecionada;
+    }
+
+    public void setRotaSelecionada(Route rotaSelecionada) {
+        this.rotaSelecionada = rotaSelecionada;
+    }
+    
     
     public BigDecimal getCombustivel() {
         return combustivel;

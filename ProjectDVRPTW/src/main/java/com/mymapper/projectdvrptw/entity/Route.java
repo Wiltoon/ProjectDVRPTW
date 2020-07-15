@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.mycompany.projectdvrptw.entity;
+package com.mymapper.projectdvrptw.entity;
 
 import java.awt.Point;
 import java.math.BigDecimal;
@@ -15,6 +15,7 @@ import java.util.List;
  * @author Wilton Costa
  */
 public class Route {
+    private Vehicle respForRoute = new Vehicle();
     private List<Pedido> pedidosDaRota = new ArrayList<>();
     private List<Point> pontos = new ArrayList<>();
     private BigDecimal tempoGasto = BigDecimal.ZERO;
