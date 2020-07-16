@@ -14,7 +14,10 @@ import java.math.BigDecimal;
  * @author Wilton Costa
  */
 public class Definy {
-    public final BigDecimal TEMPO_MAX = BigDecimal.valueOf(100);
-    public final Point DEPOSITO = new Point(0,0);
-    public final int CAPACIDADE_TOTAL_MAPA = 0;
+    public BigDecimal TEMPO_MAX = BigDecimal.valueOf(100);
+    public Point DEPOSITO = new Point(0,0);
+    public int CAPACIDADE_TOTAL_MAPA = 0;
+    public int CAPACIDADE_MAXIMA_DOS_VEICULOS = 20;
+    public int QTD_TOTAL_DE_VEICULOS = 0;
+    public int INTERACOES = 100;
 }

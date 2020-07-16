@@ -5,9 +5,12 @@
  */
 package com.mymapper.projectdvrptw.cont;
 
+import com.mymapper.projectdvrptw.defines.Definy;
+import com.mymapper.projectdvrptw.entity.Pedido;
 import com.mymapper.projectdvrptw.entity.Route;
 import java.awt.Point;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.List;
 
 /**
@@ -26,6 +29,21 @@ public class Formulas {
         int dX = finish.x - inicial.x;
         int dY = finish.y - inicial.y;
         return new BigDecimal(dX*dX+dY*dY);
+    }
+    
+    public static BigDecimal sqrtDistanceEuclidian(Point inicial, Point finish){
+        return distanceEuclidiana2d(inicial, finish).sqrt(MathContext.DECIMAL32);
+    }
+    
+    public static BigDecimal timeDistance(BigDecimal distancia){
+        return distancia.divide(new BigDecimal(Definy.VELOCIDADE_CARROS));
+    }
+    
+    public static BigDecimal timeOutRoute(Pedido atual, Pedido prox){
+        BigDecimal timeTotal = BigDecimal.ZERO;
+        timeTotal = atual.getTempoEntrega().add(prox.getTempoEntrega());
+        timeTotal = timeTotal.add(timeDistance(sqrtDistanceEuclidian(atual.getCoord(), prox.getCoord())));
+        return timeTotal;
     }
     
     /**

@@ -5,6 +5,7 @@
  */
 package com.mymapper.projectdvrptw.cont;
 
+import com.mymapper.projectdvrptw.defines.Definy;
 import com.mymapper.projectdvrptw.entity.MapaPrincipal;
 
 /**
@@ -15,6 +16,9 @@ public class ControllerEstatic {
     public void criarCentroides(MapaPrincipal mapa){
         //Por K-Means
         //Qtd de carros necessarios
+        Definy def = new Definy();
+        mapa.capacityTotal(def);
+        int Kminimo = def.CAPACIDADE_TOTAL_MAPA/def.CAPACIDADE_MAXIMA_DOS_VEICULOS;
     }
     public void criarRotas(MapaPrincipal mapa){
         //Criar rotas com heuristica A*

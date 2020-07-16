@@ -18,42 +18,41 @@ public class VRPTW {
     //the capacity of each vehicle
     private int capacity;
 
-//    //arraylist which keeps all the customer requests defined in the VRPTW instance
-//    private ArrayList<Request> requests;
+    //arraylist which keeps all the customer requests defined in the VRPTW instance
+    private ArrayList<RequestVRP> requests;
 
     //arraylist which keeps the ids of the available requests known at the current time
     //initially it contains the ids of the apriori requests, having available time = 0
     private ArrayList<Integer> idAvailableRequests;
 
-//    //arraylist which keeps the list of dynamic requests, which are not known in advance, having 
-//    //available time > 0
-//    private ArrayList<Request> dynamicRequests;
+    //arraylist which keeps the list of dynamic requests, which are not known in advance, having 
+    //available time > 0
+    private ArrayList<RequestVRP> dynamicRequests;
 
     //number of cities/customers, except the depot
     public static int n;
 
     //number of salesmen from the mTSP instance - the number of vehicles to be used in the solution of the VRPTW instance
     //static int m;
-    static class Point {
-
-        double x;
-        double y;
+    public static class Point {
+        public double x;
+        public double y;
     }
 
     public static class Problem {
 
-        String name;
         /* instance name */
-        int n_near;
+        public String name;
         /* number of nearest neighbors */
-        Point[] nodes;
+        public int n_near;
         /* array of classes containing coordinates of nodes */
-        double[][] distance;
+        public Point[] nodes;
         /* distance matrix: distance[i][j] gives distance */
-        int[][] nn_list;
+        public double[][] distance;
         /* nearest neighbor list; contains for each node i a sorted list of n_near nearest neighbors */
-        int[][] nn_list_all;
+        public int[][] nn_list;
         /* nearest neighbor list; contains for each node i a sorted list of n_near nearest neighbors including the depot*/
+        public int[][] nn_list_all;
 
     }
 
@@ -67,14 +66,14 @@ public class VRPTW {
         this.capacity = capacity_;
     }
 
-//    public VRPTW(int nrVehicles_, int capacity_, ArrayList<Request> list) {
-//        this(nrVehicles_, capacity_);
-//
-//        this.requests = new ArrayList<Request>(list.size());
-//        for (int i = 0; i < list.size(); i++) {
-//            this.requests.set(i, list.get(i));
-//        }
-//    }
+    public VRPTW(int nrVehicles_, int capacity_, ArrayList<RequestVRP> list) {
+        this(nrVehicles_, capacity_);
+
+        this.requests = new ArrayList<RequestVRP>(list.size());
+        for (int i = 0; i < list.size(); i++) {
+            this.requests.set(i, list.get(i));
+        }
+    }
 
     public int getNrVehicles() {
         return nrVehicles;
@@ -92,13 +91,13 @@ public class VRPTW {
         this.capacity = capacity;
     }
 
-//    public ArrayList<Request> getRequests() {
-//        return requests;
-//    }
-//
-//    public void setRequests(ArrayList<Request> requests) {
-//        this.requests = requests;
-//    }
+    public ArrayList<RequestVRP> getRequests() {
+        return requests;
+    }
+
+    public void setRequests(ArrayList<RequestVRP> requests) {
+        this.requests = requests;
+    }
 
     public ArrayList<Integer> getIdAvailableRequests() {
         return idAvailableRequests;
@@ -108,13 +107,13 @@ public class VRPTW {
         this.idAvailableRequests = idAvailableRequests;
     }
 
-//    public ArrayList<Request> getDynamicRequests() {
-//        return dynamicRequests;
-//    }
-//
-//    public void setDynamicRequests(ArrayList<Request> dynamicRequests) {
-//        this.dynamicRequests = dynamicRequests;
-//    }
+    public ArrayList<RequestVRP> getDynamicRequests() {
+        return dynamicRequests;
+    }
+
+    public void setDynamicRequests(ArrayList<RequestVRP> dynamicRequests) {
+        this.dynamicRequests = dynamicRequests;
+    }
 
     public static double dtrunc(double x) {
         int k;

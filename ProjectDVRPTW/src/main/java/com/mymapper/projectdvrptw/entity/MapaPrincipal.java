@@ -5,6 +5,7 @@
  */
 package com.mymapper.projectdvrptw.entity;
 
+import com.mymapper.projectdvrptw.defines.Definy;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +31,17 @@ public class MapaPrincipal {
             }
         }
     }
-    
+    public void capacityTotal(Definy def){
+        def.CAPACIDADE_TOTAL_MAPA = 0;
+        if(!getAllPedidos().isEmpty()){
+            for(Pedido pedido : getAllPedidos()){
+                def.CAPACIDADE_TOTAL_MAPA += pedido.getQtd();
+            }
+        }
+    }
+    public void adicionaZona(Centroid centroid){
+        this.getZonas().add(centroid);
+    }
     public void createVehiclesInMap(){
         
     }
@@ -43,6 +54,24 @@ public class MapaPrincipal {
     public void setZonas(List<Centroid> zonas) {
         this.zonas = zonas;
     }
+
+    public int getCapacityMax() {
+        return capacityMax;
+    }
+
+    public void setCapacityMax(int capacityMax) {
+        this.capacityMax = capacityMax;
+    }
+
+    public VRPTW getProblem() {
+        return problem;
+    }
+
+    public void setProblem(VRPTW problem) {
+        this.problem = problem;
+    }
+    
+    
     
     public List<Vehicle> getAllVehicles() {
         return allVehicles;
