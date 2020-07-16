@@ -20,4 +20,8 @@ public class Definy {
     public int CAPACIDADE_MAXIMA_DOS_VEICULOS = 20;
     public int QTD_TOTAL_DE_VEICULOS = 0;
     public int INTERACOES = 100;
+    /**
+     * Velocidade dos Veiculos, quantos pontos/segundos
+     */
+    public static int VELOCIDADE_CARROS = 3;
 }

@@ -102,8 +102,8 @@ public class Route {
             setTempoGasto(getTempoGasto().add(Formulas.timeOutRoute(getPedidosOrdenados().get(idx - 1), getPedidosOrdenados().get(idx))));
             idx++;
         }
-        setDistancia(getDistancia().add(Formulas.sqrtDistanceEuclidian(getPedidosOrdenados().get(0).getCoord(),def.DEPOSITO)));
-        setTempoGasto(getTempoGasto().add(Formulas.timeOutRoute(getPedidosOrdenados().get(idx), new Pedido())));
+        setDistancia(getDistancia().add(Formulas.sqrtDistanceEuclidian(getPedidosOrdenados().get(idx-1).getCoord(),def.DEPOSITO)));
+        setTempoGasto(getTempoGasto().add(Formulas.timeOutRoute(getPedidosOrdenados().get(idx-1), new Pedido())));
     }
 
     public Pedido buscaPedidoProximo(Point actual) {

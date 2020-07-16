@@ -27,7 +27,7 @@ public class KlusterMean {
 
     private static final Random random = new Random();
 
-    public static Map<Centroid, List<Pedido>> fit(int k, List<Pedido> pedidos, int maxInteration, MapaPrincipal mapa) {
+    public static Map<Centroid, List<Pedido>> fit(int k, List<Pedido> pedidos, int maxInteration) {
         Map<Centroid, List<Pedido>> clusters = new HashMap<>();
         Map<Centroid, List<Pedido>> lastState = new HashMap<>();
         List<Centroid> rotas = gerarCentroids(pedidos, k);
@@ -42,7 +42,7 @@ public class KlusterMean {
             if (terminate) {
                 break;
             }
-            rotas = realocateCentroids(mapa,clusters);
+            rotas = realocateCentroids(clusters);
             clusters = new HashMap<>();
         }
         return lastState;
@@ -90,10 +90,10 @@ public class KlusterMean {
         return centroid;
     }
 
-    public static List<Centroid> realocateCentroids(MapaPrincipal mapa,Map<Centroid,List<Pedido>> clusters) {
-        for (Centroid centroid : mapa.getZonas()) {
-            average(centroid,centroid.getPedidos());
-        }
+    public static List<Centroid> realocateCentroids(Map<Centroid,List<Pedido>> clusters) {
+//        for (Centroid centroid : mapa.getZonas()) {
+//            average(centroid,centroid.getPedidos());
+//        }
         return clusters.entrySet().stream().map(e -> average(e.getKey(), e.getValue())).collect(toList());
     }
 
