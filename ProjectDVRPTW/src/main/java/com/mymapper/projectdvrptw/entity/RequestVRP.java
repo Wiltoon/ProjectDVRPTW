@@ -5,6 +5,8 @@
  */
 package com.mymapper.projectdvrptw.entity;
 
+import java.awt.Point;
+
 /**
  *
  * @author Wilton Costa
@@ -73,6 +75,10 @@ public class RequestVRP implements Comparable<RequestVRP> {
         this.availableTime = availableTime_;
     }
 
+    public static Point requestPoint(RequestVRP vrp){
+        return new Point(vrp.xCoord, vrp.yCoord);
+    }
+    
     //<editor-fold defaultstate="collapsed" desc="Getters e Setters">
     public int getId() {
         return id;

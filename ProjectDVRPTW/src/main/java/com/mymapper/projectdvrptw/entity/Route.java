@@ -75,16 +75,16 @@ public class Route {
     }
 
     //</editor-fold>
-    public void sortPedidos(Definy definicoes) {
+    public void sortPedidos(Definy definicoes, List<Pedido> pedidos) {
         int idx = 0;
-        getPedidosOrdenados().add(buscaPedidoProximo(definicoes.DEPOSITO));
-        for (Pedido pedido : getPedidosDaRota()) {
+        pedidos.add(buscaPedidoProximo(definicoes.DEPOSITO, pedidos));
+        for (Pedido pedido : pedidos) {
             if (!pedido.isVizitado()) {
-                getPedidosOrdenados().add(buscaPedidoProximo(getPedidosOrdenados().get(idx).getCoord()));
+                pedidos.add(buscaPedidoProximo(pedidos.get(idx).getCoord(), pedidos));
                 idx = idx + 1;
             }
         }
-
+        setPedidosOrdenados(pedidos);
     }
 
     /**
@@ -95,28 +95,30 @@ public class Route {
     public void distanceAndTimeForRoute(Definy def) {
         int idx = 0;
         setDistancia(getDistancia().add(Formulas.sqrtDistanceEuclidian(def.DEPOSITO, getPedidosOrdenados().get(0).getCoord())));
-        setTempoGasto(getTempoGasto().add(Formulas.timeOutRoute(new Pedido(), getPedidosOrdenados().get(0))));
+        setTempoGasto(getTempoGasto().add(Formulas.timeOutRoute(new Pedido(def.DEPOSITO), getPedidosOrdenados().get(0))));
         idx++;
         for (Pedido p : getPedidosOrdenados()) {
-            setDistancia(getDistancia().add(Formulas.sqrtDistanceEuclidian(getPedidosOrdenados().get(idx - 1).getCoord(), getPedidosOrdenados().get(idx).getCoord())));
-            setTempoGasto(getTempoGasto().add(Formulas.timeOutRoute(getPedidosOrdenados().get(idx - 1), getPedidosOrdenados().get(idx))));
+            setDistancia(getDistancia().add(Formulas.sqrtDistanceEuclidian(p.getCoord(), getPedidosOrdenados().get(idx).getCoord())));
+            setTempoGasto(getTempoGasto().add(Formulas.timeOutRoute(p, getPedidosOrdenados().get(idx))));
             idx++;
         }
-        setDistancia(getDistancia().add(Formulas.sqrtDistanceEuclidian(getPedidosOrdenados().get(idx-1).getCoord(),def.DEPOSITO)));
-        setTempoGasto(getTempoGasto().add(Formulas.timeOutRoute(getPedidosOrdenados().get(idx-1), new Pedido())));
+        setDistancia(getDistancia().add(Formulas.sqrtDistanceEuclidian(getPedidosOrdenados().get(idx - 1).getCoord(), def.DEPOSITO)));
+        setTempoGasto(getTempoGasto().add(Formulas.timeOutRoute(getPedidosOrdenados().get(idx - 1), new Pedido(def.DEPOSITO))));
     }
 
-    public Pedido buscaPedidoProximo(Point actual) {
+    public Pedido buscaPedidoProximo(Point actual, List<Pedido> pedidos) {
         BigDecimal menorDistance = null;
         Pedido nearPedido = new Pedido();
-        for (Pedido pedido : getPedidosDaRota()) {
-            if (menorDistance == null) {
-                menorDistance = Formulas.distanceEuclidiana2d(actual, pedido.getCoord());
-            }
-            if (menorDistance.compareTo(Formulas.distanceEuclidiana2d(actual, pedido.getCoord())) > 0) {
-                menorDistance = Formulas.distanceEuclidiana2d(actual, pedido.getCoord());
-                nearPedido = new Pedido(pedido);
-                pedido.setVizitado(true);
+        for (Pedido pedido : pedidos) {
+            if (!pedido.isVizitado()) {
+                if (menorDistance == null) {
+                    menorDistance = Formulas.distanceEuclidiana2d(actual, pedido.getCoord());
+                }
+                if (menorDistance.compareTo(Formulas.distanceEuclidiana2d(actual, pedido.getCoord())) > 0) {
+                    menorDistance = Formulas.distanceEuclidiana2d(actual, pedido.getCoord());
+                    nearPedido = new Pedido(pedido);
+                    pedido.setVizitado(true);
+                }
             }
         }
         return nearPedido;

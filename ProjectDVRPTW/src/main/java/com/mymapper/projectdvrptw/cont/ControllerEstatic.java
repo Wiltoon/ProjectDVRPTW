@@ -9,6 +9,8 @@ import com.mymapper.projectdvrptw.defines.Definy;
 import com.mymapper.projectdvrptw.entity.Centroid;
 import com.mymapper.projectdvrptw.entity.MapaPrincipal;
 import com.mymapper.projectdvrptw.entity.Pedido;
+import com.mymapper.projectdvrptw.entity.Vehicle;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -17,29 +19,43 @@ import java.util.Map;
  * @author Wilton Costa
  */
 public class ControllerEstatic {
-    public void criarCentroides(MapaPrincipal mapa){
+    /**
+     * Cria centroides no mapa e cria as rotas para os veículos correspondentes
+     * @param mapa 
+     */
+    public static void criarCentroidesRotas(MapaPrincipal mapa){
         //Por K-Means
         //Qtd de carros necessarios
-        Definy def = new Definy();
-        mapa.capacityTotal(def);
+        mapa.capacityTotal();
         // K minimo me informa a quantidade minima de carros que são necessários
-        int Kminimo = def.CAPACIDADE_TOTAL_MAPA/def.CAPACIDADE_MAXIMA_DOS_VEICULOS;
+        int Kminimo = mapa.def.CAPACIDADE_TOTAL_MAPA/mapa.def.CAPACIDADE_MAXIMA_DOS_VEICULOS;
         int Kreg = 5*Kminimo/4;
-        if(def.QTD_TOTAL_DE_VEICULOS < Kreg){
-            Kreg = def.QTD_TOTAL_DE_VEICULOS;
+        if(mapa.def.QTD_TOTAL_DE_VEICULOS < Kreg){
+            Kreg = mapa.def.QTD_TOTAL_DE_VEICULOS;
         }
-        Map<Centroid,List<Pedido>> mapper = KlusterMean.fit(Kreg, mapa.getAllPedidos(), def.INTERACOES);
+        Map<Centroid,List<Pedido>> mapper = KlusterMean.fit(Kreg, mapa.getAllPedidos(), mapa.def.INTERACOES);
         for(Centroid key : mapper.keySet()){
             key.setPedidos(mapper.get(key));
             mapa.adicionaZona(key);            
         }
         criarRotas(mapa);
     }
-    public void criarRotas(MapaPrincipal mapa){
-        
+    public static void criarRotas(MapaPrincipal mapa){
+        int id = 0;
+        for(Centroid cent : mapa.getZonas()){
+            mapa.def.QTD_DE_VEICULOS_USADOS++;
+            id = mapa.def.QTD_DE_VEICULOS_USADOS;
+            Vehicle car = Vehicle.usarVehicle(id, mapa);
+            car.setUsado(Boolean.TRUE);
+            car.setRotaSelecionada(cent.getRotas().get(id-1));
+            car.getRotaSelecionada().sortPedidos(mapa.def, cent.getPedidos());
+            car.getRotaSelecionada().distanceAndTimeForRoute(mapa.def);
+            cent.setVeiculoSelecionado(car);
+        }
         //Criar rotas com heuristica A*
         //Verificar se tem tempo suficiente
         //Verificar melhores distancias de cada centroide
         //Verificar quantos veiculos serao necessarios
     }
+    
 }

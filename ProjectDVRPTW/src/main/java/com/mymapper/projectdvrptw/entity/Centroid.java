@@ -16,6 +16,9 @@ import java.util.List;
  * @author Wilton Costa
  */
 public class Centroid {
+    /**
+     * id do vehicle responsavel
+     */
     private int id;
     private Point centro;
     private List<Pedido> pedidos = new ArrayList<>();
@@ -39,7 +42,9 @@ public class Centroid {
     }
     
     public void selecionarVehicleResponsavel(Vehicle veiculo){
+        setId(veiculo.getId());
         setVeiculoSelecionado(veiculo);
+        
     } 
     /**
      * Aqui deve listar todas as rotas possíveis pro centroide
