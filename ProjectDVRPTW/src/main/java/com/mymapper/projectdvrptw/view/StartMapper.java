@@ -5,18 +5,24 @@
  */
 package com.mymapper.projectdvrptw.view;
 
+import com.mymapper.projectdvrptw.entity.Centroid;
 import com.mymapper.projectdvrptw.entity.MapaPrincipal;
 import com.mymapper.projectdvrptw.entity.Pedido;
+import com.mymapper.projectdvrptw.entity.Vehicle;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author Wilton Costa
  */
-public class StartMapper extends javax.swing.JFrame implements Runnable{
+public class StartMapper extends javax.swing.JFrame implements Runnable {
 
     int _WIDTH = 5;
     int _HEIGHT = 5;
@@ -26,81 +32,107 @@ public class StartMapper extends javax.swing.JFrame implements Runnable{
     private int Ymin = 2000;
     private int Ymax = 0;
     private Graphics graf;
+
     /**
      * Creates new form SelectorInput
      */
-    
     public StartMapper() {
+        addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                repaint();
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+            }
+        });
         initComponents();
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Mapa do VRP");
+        setExtendedState(MAXIMIZED_BOTH);
+        setLocationRelativeTo(null);
+        setVisible(true);
     }
 
     //<editor-fold defaultstate="collapsed" desc="Getters e Setters">
     public int getWIDTH() {
         return _WIDTH;
     }
-    
+
     public void setWIDTH(int _WIDTH) {
         this._WIDTH = _WIDTH;
     }
-    
+
     public int getHEIGHT() {
         return _HEIGHT;
     }
-    
+
     public void setHEIGHT(int _HEIGHT) {
         this._HEIGHT = _HEIGHT;
     }
-    
+
     public MapaPrincipal getMapa() {
         return mapa;
     }
-    
+
     public void setMapa(MapaPrincipal mapa) {
         this.mapa = mapa;
     }
-    
+
     public int getXmin() {
         return Xmin;
     }
-    
+
     public void setXmin(int Xmin) {
         this.Xmin = Xmin;
     }
-    
+
     public int getXmax() {
         return Xmax;
     }
-    
+
     public void setXmax(int Xmax) {
         this.Xmax = Xmax;
     }
-    
+
     public int getYmin() {
         return Ymin;
     }
-    
+
     public void setYmin(int Ymin) {
         this.Ymin = Ymin;
     }
-    
+
     public int getYmax() {
         return Ymax;
     }
-    
+
     public void setYmax(int Yman) {
         this.Ymax = Yman;
     }
-    
+
     public Graphics getGraf() {
         return graf;
     }
-    
+
     public void setGraf(Graphics graf) {
         this.graf = graf;
     }
 //</editor-fold>
-    
-    
+
     //<editor-fold defaultstate="collapsed" desc="Funções necessárias para o DESENHO">
     @Override
     public void paint(Graphics g) {
@@ -108,7 +140,10 @@ public class StartMapper extends javax.swing.JFrame implements Runnable{
         g.clearRect(0, 0, 50000, 50000);
         normalize(mapa.getAllPedidos());
         HashMap<Integer, Pedido> map = drawPoints(g);
-        drawRoutes(map, g);
+        Map<Vehicle, Integer> mapVeiculos = new HashMap<Vehicle, Integer>();
+        mapVeiculos = mapa.attPositionVehicles();
+        drawCentroids(g, mapa);
+        drawRoutes(mapVeiculos, g, mapa);
     }
 
     public HashMap<Integer, Pedido> drawPoints(Graphics g) {
@@ -124,7 +159,13 @@ public class StartMapper extends javax.swing.JFrame implements Runnable{
         return map;
     }
 
-    public void drawRoutes(HashMap<Integer, Pedido> map, Graphics g) {
+    public void drawCentroids(Graphics g, MapaPrincipal mapa) {
+        for (Centroid c : mapa.getZonas()) {
+            centroidPoint(g, c.getCentro().x, c.getCentro().y);
+        }
+    }
+
+    public void drawRoutes(Map<Vehicle, Integer> map, Graphics g, MapaPrincipal mapaMain) {
         Color colors[] = {Color.RED,
             Color.GREEN,
             Color.black,
@@ -135,23 +176,58 @@ public class StartMapper extends javax.swing.JFrame implements Runnable{
             Color.ORANGE,
             Color.CYAN,
             Color.YELLOW};
-//        if (getTours() != null) {
-//            for (int i = 0; i < getTours().size(); i++) {
-//                g.setColor(colors[i % 10]);
-//                for (int car = 1; car < getTours().get(i).size(); car++) {
-//                    int keyPast = getTours().get(i).get(car - 1) + 1;
-//                    int key = getTours().get(i).get(car) + 1;
-//                    g.drawLine(coordNorm(map.get(keyPast).getxCoord(), 'x'), coordNorm(map.get(keyPast).getyCoord(), 'y'),
-//                            coordNorm(map.get(key).getxCoord(), 'x'), coordNorm(map.get(key).getyCoord(), 'y'));
-//
-//                }
-//            }
-//        }
+        int i = 0;
+        for (Vehicle v : map.keySet()) {
+            g.setColor(colors[i % 10]);
+            i++;
+            if (map.get(v) <= mapaMain.tempoCurrenty) {
+                for (int posi = 0; posi < v.getRotaSelecionada().getPedidosOrdenados().size() - 1; posi++) {
+//                    if (posi == 0) {
+//                        if (p.isVizitado()) {
+//                            drawLinePoints(g, mapaMain.def.DEPOSITO, p.getCoord());
+//                        }
+//                    }
+//                    else 
+                    if (v.getRotaSelecionada().getPedidosOrdenados().get(posi).getCoord().equals(mapaMain.def.DEPOSITO)) {
+                        drawLinePoints(g, mapaMain.def.DEPOSITO, v.getRotaSelecionada().getPedidosOrdenados().get(posi).getCoord());
+                        continue;
+                    } else {
+                        if (posi == 0) {
+                            if (v.getRotaSelecionada().getPedidosOrdenados().get(posi).isVizitado()) {
+                                drawLinePoints(g, mapaMain.def.DEPOSITO, v.getRotaSelecionada().getPedidosOrdenados().get(posi).getCoord());
+                                continue;
+                            }
+                        }
+                    }
+                    if (v.getRotaSelecionada().getPedidosOrdenados().get(posi).isVizitado()) {
+                        drawLinePoints(g,
+                                v.getRotaSelecionada().getPedidosOrdenados().get(posi).getCoord(),
+                                v.getRotaSelecionada().getPedidosOrdenados().get(posi + 1).getCoord());
+                    }
+                }
+                int posi = v.getRotaSelecionada().getPedidosOrdenados().size() - 1;
+                if (v.getRotaSelecionada().getPedidosOrdenados().get(posi).isVizitado()) {
+                    drawLinePoints(g, v.getRotaSelecionada().getPedidosOrdenados().get(posi).getCoord(), mapaMain.def.DEPOSITO);
+                }
+
+            }
+        }
         g.setColor(Color.WHITE);
+    }
+
+    public void drawLinePoints(Graphics g, Point inicial, Point finish) {
+        g.drawLine(coordNorm(inicial.x, 'x'), coordNorm(inicial.y, 'y'),
+                coordNorm(finish.x, 'x'), coordNorm(finish.y, 'y'));
     }
 
     public void depositPoint(Graphics g, int x, int y) {
         g.setColor(Color.black);
+        g.fillRect(coordNorm(x, 'x') - (_WIDTH / 2), coordNorm(y, 'y') - (_HEIGHT / 2), _WIDTH, _HEIGHT);
+        g.setColor(Color.WHITE);
+    }
+
+    public void centroidPoint(Graphics g, int x, int y) {
+        g.setColor(Color.RED);
         g.fillRect(coordNorm(x, 'x') - (_WIDTH / 2), coordNorm(y, 'y') - (_HEIGHT / 2), _WIDTH, _HEIGHT);
         g.setColor(Color.WHITE);
     }
@@ -189,7 +265,6 @@ public class StartMapper extends javax.swing.JFrame implements Runnable{
             }
         }
     }
-
 
     //</editor-fold>
     /**

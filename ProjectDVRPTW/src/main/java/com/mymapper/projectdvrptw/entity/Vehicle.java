@@ -5,6 +5,7 @@
  */
 package com.mymapper.projectdvrptw.entity;
 
+import com.mymapper.projectdvrptw.cont.Formulas;
 import com.mymapper.projectdvrptw.defines.Definy;
 import java.awt.Point;
 import java.math.BigDecimal;
@@ -16,6 +17,7 @@ import java.util.List;
  * @author Wilton Costa
  */
 public class Vehicle {
+
     //<editor-fold defaultstate="collapsed" desc="Variaveis do Vehicle">
     /**
      * Preenchido no MapaPrincipal o id do carro
@@ -34,12 +36,13 @@ public class Vehicle {
      */
     private BigDecimal combustivel;
     /**
-     * Posição atual do Carro inicia no DEPOSITO
-     * DEVE SER ATUALIZADA QUANDO CHEGAR NO PROXIMO DESTINO
+     * Posição atual do Carro inicia no DEPOSITO DEVE SER ATUALIZADA QUANDO
+     * CHEGAR NO PROXIMO DESTINO
      */
     private Point localAtual = new Point();
     /**
-     * Vetor AUXILIAR PARA VERIFICAR AS MELHORES ROTAS APOS PEDIDO NOVO (ControllerDynamic)
+     * Vetor AUXILIAR PARA VERIFICAR AS MELHORES ROTAS APOS PEDIDO NOVO
+     * (ControllerDynamic)
      */
     private List<Route> rotasDoVeiculo = new ArrayList<>();
     /**
@@ -51,7 +54,7 @@ public class Vehicle {
      */
     private Boolean usado = Boolean.FALSE;
     //</editor-fold>
-    
+
     //<editor-fold defaultstate="collapsed" desc="Constructor">
     public Vehicle(int id, int capacidade, int velocidade, BigDecimal combustivel, Point point) {
         this.id = id;
@@ -61,32 +64,55 @@ public class Vehicle {
         this.localAtual = point;
         this.usado = Boolean.FALSE;
     }
-    
+
     public Vehicle() {
         this.id = 0;
         this.capacidade = 0;
         this.combustivel = BigDecimal.ZERO;
-        moveVehicle(new Point(0,0));
+        moveVehicle(new Point(0, 0));
     }
-    
+
     //</editor-fold>
-    
-    public void percorrerRota(){
-        
+    public void percorrerRota() {
+
     }
-    
-    public static Vehicle usarVehicle(int id, MapaPrincipal map){
+
+    public static Vehicle usarVehicle(int id, MapaPrincipal map) {
         return map.getAllVehicles().get(id);
     }
-    
-    public void moveVehicle(Point destiny){
+
+    public void moveVehicle(Point destiny) {
         this.localAtual = destiny;
     }
 
+    public int timeForNextPedido(MapaPrincipal mapa) {
+        int timeForNextPoint = 0;
+        boolean nobody = true;
+        int idx = 1;
+        for (Pedido p : getRotaSelecionada().getPedidosOrdenados()) {
+            if (idx <= getRotaSelecionada().getPedidosOrdenados().size() - 1) {
+                if (!p.isVizitado()) {
+                    nobody = false;
+                    timeForNextPoint += Formulas.timeOutRoute(p, getRotaSelecionada().getPedidosOrdenados().get(idx)).intValue();
+                    p.setVizitado(Boolean.TRUE);
+                    idx = idx + 1;
+                }
+            }
+        }
+        if (nobody) {
+            BigDecimal distance = Formulas.sqrtDistanceEuclidian(mapa.def.DEPOSITO, getRotaSelecionada().getPedidosOrdenados().get(0).getCoord());
+            BigDecimal time = Formulas.timeDistance(distance);
+            getRotaSelecionada().getPedidosOrdenados().get(0).setVizitado(Boolean.TRUE);
+            timeForNextPoint += time.intValue();
+        }
+        return timeForNextPoint*1000;
+    }
+
     //<editor-fold defaultstate="collapsed" desc="Getters e Setters">
-    public int getId() {    
+    public int getId() {
         return id;
     }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -99,11 +125,10 @@ public class Vehicle {
         this.usado = usado;
     }
 
-    
     public int getCapacidade() {
         return capacidade;
     }
-    
+
     public void setCapacidade(int capacidade) {
         this.capacidade = capacidade;
     }
@@ -116,7 +141,6 @@ public class Vehicle {
         this.velocidade = velocidade;
     }
 
-    
     public Route getRotaSelecionada() {
         return rotaSelecionada;
     }
@@ -124,31 +148,30 @@ public class Vehicle {
     public void setRotaSelecionada(Route rotaSelecionada) {
         this.rotaSelecionada = rotaSelecionada;
     }
-    
-    
+
     public BigDecimal getCombustivel() {
         return combustivel;
     }
-    
+
     public void setCombustivel(BigDecimal combustivel) {
         this.combustivel = combustivel;
     }
-    
+
     public Point getLocalAtual() {
         return localAtual;
     }
-    
+
     public void setLocalAtual(Point localAtual) {
         this.localAtual = localAtual;
     }
-    
+
     public List<Route> getRotasDoVeiculo() {
         return rotasDoVeiculo;
     }
-    
+
     public void setRotasDoVeiculo(List<Route> rotasDoVeiculo) {
         this.rotasDoVeiculo = rotasDoVeiculo;
     }
     //</editor-fold>
-    
+
 }

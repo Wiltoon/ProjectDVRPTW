@@ -41,7 +41,7 @@ public class Definy {
     /**
      * Quantidade maxima de interações para o K-Means
      */
-    public int INTERACOES = 100;
+    public int INTERACOES = 3;
     /**
      * Velocidade dos Veiculos, quantos pontos/segundos
      */

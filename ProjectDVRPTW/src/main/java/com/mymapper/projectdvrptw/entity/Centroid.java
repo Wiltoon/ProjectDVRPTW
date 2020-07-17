@@ -41,6 +41,12 @@ public class Centroid {
         pedidos.add(pedido);
     }
     
+    public void constroiRota(){
+        Route rota = new Route();
+        rota.setPedidosDaRota(pedidos);
+        getRotas().add(rota);
+    }
+    
     public void selecionarVehicleResponsavel(Vehicle veiculo){
         setId(veiculo.getId());
         setVeiculoSelecionado(veiculo);

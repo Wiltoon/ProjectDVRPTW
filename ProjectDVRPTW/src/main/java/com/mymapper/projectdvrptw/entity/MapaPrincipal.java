@@ -9,7 +9,9 @@ import com.mymapper.projectdvrptw.cont.ControllerEstatic;
 import com.mymapper.projectdvrptw.defines.Definy;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -32,6 +34,7 @@ public class MapaPrincipal {
      * Tempo decorrido desde o seu inicio!
      */
     private BigDecimal tempoDecorrido = BigDecimal.ZERO;
+    public long tempoCurrenty = 0;
     /**
      * Capacidade maxima do mapa
      */
@@ -69,6 +72,16 @@ public class MapaPrincipal {
         }
         ControllerEstatic.criarCentroidesRotas(this);
         
+    }
+    
+    public Map<Vehicle,Integer> attPositionVehicles(){
+        Map<Vehicle,Integer> mapTimer = new HashMap<Vehicle,Integer>();
+        for(Vehicle v : getAllVehicles()){
+            if(v.getUsado()){
+                mapTimer.put(v, v.timeForNextPedido(this));
+            }
+        }
+        return mapTimer;
     }
     
     public void capacityTotal(){

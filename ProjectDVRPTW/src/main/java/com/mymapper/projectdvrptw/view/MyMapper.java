@@ -5,6 +5,7 @@
  */
 package com.mymapper.projectdvrptw.view;
 
+import com.mymapper.projectdvrptw.cont.ControllerMain;
 import com.mymapper.projectdvrptw.entity.MapaPrincipal;
 import com.mymapper.projectdvrptw.entity.VRPTW;
 import com.mymapper.projectdvrptw.parser.DataReader;
@@ -171,7 +172,10 @@ public class MyMapper extends javax.swing.JFrame {
     }//GEN-LAST:event_btnUploadActionPerformed
 
     private void btnStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartActionPerformed
-        
+        ControllerMain iniciarCom = new ControllerMain();
+        iniciarCom.mapaPrincipal = mapa;
+        iniciarCom.start.setMapa(mapa);
+        iniciarCom.start();
     }//GEN-LAST:event_btnStartActionPerformed
 
     public void montarTabela(MapaPrincipal mapa){

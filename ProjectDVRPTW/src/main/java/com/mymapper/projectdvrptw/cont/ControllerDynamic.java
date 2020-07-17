@@ -11,7 +11,13 @@ import com.mymapper.projectdvrptw.entity.Pedido;
  *
  * @author Wilton Costa
  */
-public class ControllerDynamic {
+public class ControllerDynamic extends Thread{
+    
+    @Override
+    public void run(){
+        
+    }
+    
     public void novoPedidoMap(Pedido novoPedido){
         //Verificar atraves dos centroides qual é o mais próximo
         //Verificar se vale a pena outro carro, ou manter a rota do veiculo em andamento

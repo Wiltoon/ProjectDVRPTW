@@ -12,6 +12,7 @@ import com.mymapper.projectdvrptw.entity.Pedido;
 import java.awt.Point;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,13 +27,14 @@ import static java.util.stream.Collectors.toList;
 public class KlusterMean {
 
     private static final Random random = new Random();
+    private static final Random random2 = new Random();
 
-    public static Map<Centroid, List<Pedido>> fit(int k, List<Pedido> pedidos, int maxInteration) {
+    public static Map<Centroid, List<Pedido>> fit(int k, List<Pedido> pedidos, MapaPrincipal mapa) {
         Map<Centroid, List<Pedido>> clusters = new HashMap<>();
         Map<Centroid, List<Pedido>> lastState = new HashMap<>();
         List<Centroid> rotas = gerarCentroids(pedidos, k);
-        for (int i = 0; i < maxInteration; i++) {
-            boolean lastIteration = i == maxInteration - 1;
+        for (int i = 0; i < mapa.def.INTERACOES; i++) {
+            boolean lastIteration = (i == mapa.def.INTERACOES - 1);
             for (Pedido pedido : pedidos) {
                 Centroid centroid = nearestCentroid(pedido, rotas);
                 pedidoDoCentroid(clusters, centroid, pedido);
@@ -42,7 +44,7 @@ public class KlusterMean {
             if (terminate) {
                 break;
             }
-            rotas = realocateCentroids(clusters);
+            rotas = realocateCentroids(clusters,mapa);
             clusters = new HashMap<>();
         }
         return lastState;
@@ -62,12 +64,12 @@ public class KlusterMean {
     }
 
     public static void pedidoDoCentroid(Map<Centroid, List<Pedido>> clusters, Centroid centroid, Pedido pedido) {
-        centroid.adicionarPedidoNaRota(pedido);
+//        clusters.put(centroid, value);
+//        centroid.adicionarPedidoNaRota(pedido);
         clusters.compute(centroid, (key, list) -> {
             if (list == null) {
                 list = new ArrayList<>();
             }
-
             list.add(pedido);
             return list;
         });
@@ -90,10 +92,10 @@ public class KlusterMean {
         return centroid;
     }
 
-    public static List<Centroid> realocateCentroids(Map<Centroid,List<Pedido>> clusters) {
-//        for (Centroid centroid : mapa.getZonas()) {
-//            average(centroid,centroid.getPedidos());
-//        }
+    public static List<Centroid> realocateCentroids(Map<Centroid, List<Pedido>> clusters, MapaPrincipal mapa) {
+        for (Centroid centroid : mapa.getZonas()) {
+            average(centroid,centroid.getPedidos());
+        }
         return clusters.entrySet().stream().map(e -> average(e.getKey(), e.getValue())).collect(toList());
     }
 
@@ -106,28 +108,28 @@ public class KlusterMean {
 
         //Faixa de valores para os Centroids
         for (Pedido pedido : pedidos) {
-            maxX = comparacaoNula(maxX, new BigDecimal(pedido.getCoord().x), (maxX.intValue() < pedido.getCoord().x));
-            minX = comparacaoNula(minX, new BigDecimal(pedido.getCoord().x), (minX.intValue() > pedido.getCoord().x));
-            maxY = comparacaoNula(maxY, new BigDecimal(pedido.getCoord().y), (maxY.intValue() < pedido.getCoord().y));
-            minY = comparacaoNula(minY, new BigDecimal(pedido.getCoord().y), (minY.intValue() < pedido.getCoord().y));
+            maxX = comparacaoNula(maxX, new BigDecimal(pedido.getCoord().x),"Menor");
+            minX = comparacaoNula(minX, new BigDecimal(pedido.getCoord().x),"Maior");
+            maxY = comparacaoNula(maxY, new BigDecimal(pedido.getCoord().y),"Menor");
+            minY = comparacaoNula(minY, new BigDecimal(pedido.getCoord().y),"Maior");
         }
         BigDecimal angle = new BigDecimal(360 / k);
         BigDecimal centroX = (maxX.subtract(minX)).divide(new BigDecimal(2));
         BigDecimal centroY = (maxY.subtract(minY)).divide(new BigDecimal(2));
         BigDecimal Rmax = raioMaximo(maxX, maxY, centroX, centroY);
-        for (int i = 0; i < k; k++) {
-            BigDecimal tethaMIN = angle.multiply(new BigDecimal(i));
-            Double raio = random.nextDouble() % Rmax.doubleValue();
-            Double tetha = random.nextDouble() % angle.doubleValue() + tethaMIN.doubleValue();
-            Double x = centroX.doubleValue() + raio * cosseno(tetha);
-            Double y = centroY.doubleValue() + raio * cosseno(tetha);
-            if (x >= maxX.doubleValue()) {
-                x = x % maxX.doubleValue();
-                y = x * seno(tetha);
+        for (int i = 0; i < k; i++) {
+            BigDecimal tethaMIN = angle.multiply(new BigDecimal(i)).setScale(2, RoundingMode.HALF_UP);
+            Integer raio = random.nextInt()%Rmax.intValue();
+            Integer tetha = random2.nextInt()%angle.intValue() + tethaMIN.intValue();
+            BigDecimal x = new BigDecimal(centroX.doubleValue() + raio * cosseno(tetha)).setScale(1, RoundingMode.HALF_UP);
+            BigDecimal y = new BigDecimal(centroY.doubleValue() + raio * cosseno(tetha)).setScale(1, RoundingMode.HALF_UP);
+            if (x.compareTo(maxX) >= 0) {
+                x = x.remainder(maxX);
+                y = x.multiply(new BigDecimal(seno(tetha)).setScale(2, RoundingMode.HALF_UP));
             }
-            if (y >= maxY.doubleValue()) {
-                y = y % maxY.doubleValue();
-                x = y * cosseno(tetha);
+            if (y.compareTo(maxY) <= 0) {
+                y = y.remainder(maxY);
+                x = y.multiply(new BigDecimal(cosseno(tetha)).setScale(2, RoundingMode.HALF_UP));
             }
             Centroid centro = new Centroid(new Point(x.intValue(), y.intValue()));
             centroids.add(centro);
@@ -135,11 +137,11 @@ public class KlusterMean {
         return centroids;
     }
 
-    public static Double cosseno(Double angulo) {
+    public static Double cosseno(Integer angulo) {
         return Math.cos(Math.toRadians(angulo));
     }
 
-    public static Double seno(Double angulo) {
+    public static Double seno(Integer angulo) {
         return Math.sin(Math.toRadians(angulo));
     }
 
@@ -150,7 +152,21 @@ public class KlusterMean {
         return mod.sqrt(MathContext.DECIMAL64);
     }
 
-    public static BigDecimal comparacaoNula(BigDecimal value, BigDecimal expect, Boolean condicao) {
+    public static BigDecimal comparacaoNula(BigDecimal value, BigDecimal expect, String cond) {
+        boolean condicao = false;
+        if (value != null) {
+            switch (cond) {
+                case "Maior":
+                    condicao = (value.compareTo(expect) > 0);
+                    break;
+                case "Menor":
+                    condicao = (value.compareTo(expect) < 0);
+                    break;
+                default:
+                    condicao = false;
+                    break;
+            }
+        }
         return (value == null)
                 ? expect : condicao
                         ? expect : value;

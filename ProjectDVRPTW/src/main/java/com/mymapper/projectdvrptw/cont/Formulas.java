@@ -11,6 +11,7 @@ import com.mymapper.projectdvrptw.entity.Route;
 import java.awt.Point;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.List;
 
 /**
@@ -32,13 +33,19 @@ public class Formulas {
     }
     
     public static BigDecimal sqrtDistanceEuclidian(Point inicial, Point finish){
-        return distanceEuclidiana2d(inicial, finish).sqrt(MathContext.DECIMAL32);
+        return distanceEuclidiana2d(inicial, finish).sqrt(MathContext.DECIMAL32).setScale(2, RoundingMode.HALF_UP);
     }
     
     public static BigDecimal timeDistance(BigDecimal distancia){
-        return distancia.divide(new BigDecimal(Definy.VELOCIDADE_CARROS));
+        return distancia.divide(new BigDecimal(Definy.VELOCIDADE_CARROS),RoundingMode.HALF_UP);
     }
     
+    /**
+     * Calcula o tempo de um pedido a outro
+     * @param atual 
+     * @param prox
+     * @return 
+     */
     public static BigDecimal timeOutRoute(Pedido atual, Pedido prox){
         BigDecimal timeTotal = BigDecimal.ZERO;
         timeTotal = atual.getTempoEntrega().add(prox.getTempoEntrega());

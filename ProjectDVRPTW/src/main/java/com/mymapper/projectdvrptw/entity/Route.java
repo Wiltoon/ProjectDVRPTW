@@ -10,7 +10,9 @@ import com.mymapper.projectdvrptw.defines.Definy;
 import java.awt.Point;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -18,7 +20,6 @@ import java.util.List;
  */
 public class Route {
 
-    private Vehicle respForRoute = new Vehicle();
     private List<Pedido> pedidosDaRota = new ArrayList<>();
     private List<Pedido> pedidosOrdenados = new ArrayList<>();
     private List<Point> pontos = new ArrayList<>();
@@ -50,14 +51,6 @@ public class Route {
         this.tempoGasto = tempoGasto;
     }
 
-    public Vehicle getRespForRoute() {
-        return respForRoute;
-    }
-
-    public void setRespForRoute(Vehicle respForRoute) {
-        this.respForRoute = respForRoute;
-    }
-
     public List<Pedido> getPedidosOrdenados() {
         return pedidosOrdenados;
     }
@@ -76,15 +69,16 @@ public class Route {
 
     //</editor-fold>
     public void sortPedidos(Definy definicoes, List<Pedido> pedidos) {
-        int idx = 0;
-        pedidos.add(buscaPedidoProximo(definicoes.DEPOSITO, pedidos));
-        for (Pedido pedido : pedidos) {
-            if (!pedido.isVizitado()) {
-                pedidos.add(buscaPedidoProximo(pedidos.get(idx).getCoord(), pedidos));
-                idx = idx + 1;
-            }
+        List<Pedido> pedidosL = new ArrayList<>();
+        NeederPedido aux = buscaPedidoProximo(definicoes.DEPOSITO, pedidosDaRota);
+        pedidosL.add(aux.getPedidoAuxiliar());
+        getPedidosDaRota().get(aux.getIndice()).setVizitado(true);
+        for (int idx = 0; idx < getPedidosDaRota().size() - 1; idx++) {
+            NeederPedido ux = buscaPedidoProximo(pedidosL.get(idx).getCoord(), pedidosDaRota);
+            pedidosL.add(ux.getPedidoAuxiliar());
+            getPedidosDaRota().get(ux.getIndice()).setVizitado(true);
         }
-        setPedidosOrdenados(pedidos);
+        setPedidosOrdenados(pedidosL);
     }
 
     /**
@@ -98,29 +92,36 @@ public class Route {
         setTempoGasto(getTempoGasto().add(Formulas.timeOutRoute(new Pedido(def.DEPOSITO), getPedidosOrdenados().get(0))));
         idx++;
         for (Pedido p : getPedidosOrdenados()) {
-            setDistancia(getDistancia().add(Formulas.sqrtDistanceEuclidian(p.getCoord(), getPedidosOrdenados().get(idx).getCoord())));
-            setTempoGasto(getTempoGasto().add(Formulas.timeOutRoute(p, getPedidosOrdenados().get(idx))));
-            idx++;
+            if (idx < getPedidosOrdenados().size()) {
+                setDistancia(getDistancia().add(Formulas.sqrtDistanceEuclidian(p.getCoord(), getPedidosOrdenados().get(idx).getCoord())));
+                setTempoGasto(getTempoGasto().add(Formulas.timeOutRoute(p, getPedidosOrdenados().get(idx))));
+                idx++;
+            }
         }
         setDistancia(getDistancia().add(Formulas.sqrtDistanceEuclidian(getPedidosOrdenados().get(idx - 1).getCoord(), def.DEPOSITO)));
         setTempoGasto(getTempoGasto().add(Formulas.timeOutRoute(getPedidosOrdenados().get(idx - 1), new Pedido(def.DEPOSITO))));
     }
 
-    public Pedido buscaPedidoProximo(Point actual, List<Pedido> pedidos) {
+    public NeederPedido buscaPedidoProximo(Point actual, List<Pedido> pedidos) {
+        NeederPedido np = new NeederPedido();
+        Integer indice = 0;
         BigDecimal menorDistance = null;
         Pedido nearPedido = new Pedido();
         for (Pedido pedido : pedidos) {
             if (!pedido.isVizitado()) {
                 if (menorDistance == null) {
                     menorDistance = Formulas.distanceEuclidiana2d(actual, pedido.getCoord());
+                    nearPedido = new Pedido(pedido);
+                    np = new NeederPedido(indice, nearPedido);
                 }
                 if (menorDistance.compareTo(Formulas.distanceEuclidiana2d(actual, pedido.getCoord())) > 0) {
                     menorDistance = Formulas.distanceEuclidiana2d(actual, pedido.getCoord());
                     nearPedido = new Pedido(pedido);
-                    pedido.setVizitado(true);
+                    np = new NeederPedido(indice, nearPedido);
                 }
             }
+            indice++;
         }
-        return nearPedido;
+        return np;
     }
 }

@@ -11,6 +11,7 @@ import com.mymapper.projectdvrptw.entity.MapaPrincipal;
 import com.mymapper.projectdvrptw.entity.Pedido;
 import com.mymapper.projectdvrptw.entity.Vehicle;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,10 +31,14 @@ public class ControllerEstatic {
         // K minimo me informa a quantidade minima de carros que são necessários
         int Kminimo = mapa.def.CAPACIDADE_TOTAL_MAPA/mapa.def.CAPACIDADE_MAXIMA_DOS_VEICULOS;
         int Kreg = 5*Kminimo/4;
+//        int Kreg = 10;
         if(mapa.def.QTD_TOTAL_DE_VEICULOS < Kreg){
             Kreg = mapa.def.QTD_TOTAL_DE_VEICULOS;
         }
-        Map<Centroid,List<Pedido>> mapper = KlusterMean.fit(Kreg, mapa.getAllPedidos(), mapa.def.INTERACOES);
+        Map<Centroid,List<Pedido>> mapper = new HashMap<Centroid,List<Pedido>>();
+        do{
+            mapper = KlusterMean.fit(Kreg, mapa.getAllPedidos(), mapa);
+        }while(Kminimo > mapper.size());
         for(Centroid key : mapper.keySet()){
             key.setPedidos(mapper.get(key));
             mapa.adicionaZona(key);            
@@ -43,11 +48,12 @@ public class ControllerEstatic {
     public static void criarRotas(MapaPrincipal mapa){
         int id = 0;
         for(Centroid cent : mapa.getZonas()){
+            cent.constroiRota();
             mapa.def.QTD_DE_VEICULOS_USADOS++;
             id = mapa.def.QTD_DE_VEICULOS_USADOS;
             Vehicle car = Vehicle.usarVehicle(id, mapa);
             car.setUsado(Boolean.TRUE);
-            car.setRotaSelecionada(cent.getRotas().get(id-1));
+            car.setRotaSelecionada(cent.getRotas().get(0));
             car.getRotaSelecionada().sortPedidos(mapa.def, cent.getPedidos());
             car.getRotaSelecionada().distanceAndTimeForRoute(mapa.def);
             cent.setVeiculoSelecionado(car);
