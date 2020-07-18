@@ -32,12 +32,14 @@ public class KlusterMean {
     public static Map<Centroid, List<Pedido>> fit(int k, List<Pedido> pedidos, MapaPrincipal mapa) {
         Map<Centroid, List<Pedido>> clusters = new HashMap<>();
         Map<Centroid, List<Pedido>> lastState = new HashMap<>();
-        List<Centroid> rotas = gerarCentroids(pedidos, k);
+        List<Centroid> rotas = gerarCentroids(pedidos, k, mapa);
         for (int i = 0; i < mapa.def.INTERACOES; i++) {
             boolean lastIteration = (i == mapa.def.INTERACOES - 1);
             for (Pedido pedido : pedidos) {
-                Centroid centroid = nearestCentroid(pedido, rotas);
-                pedidoDoCentroid(clusters, centroid, pedido);
+                Centroid centroid = nearestCentroid(pedido, rotas, mapa.def);
+                if(centroid != null){
+                    pedidoDoCentroid(clusters, centroid, pedido);
+                }
             }
             boolean terminate = lastIteration || clusters.equals(lastState);
             lastState = clusters;
@@ -50,12 +52,13 @@ public class KlusterMean {
         return lastState;
     }
 
-    public static Centroid nearestCentroid(Pedido pedido, List<Centroid> centroids) {
+    public static Centroid nearestCentroid(Pedido pedido, List<Centroid> centroids, Definy ck) {
         double minDistance = Double.MAX_VALUE;
         Centroid nearest = null;
         for (Centroid centroid : centroids) {
             BigDecimal distancia = centroid.distanciaPedido(pedido.getCoord());
-            if (distancia.doubleValue() < minDistance) {
+            if (distancia.doubleValue() < minDistance && 
+                    centroid.calculaCKatual() <= ck.CAPACIDADE_MAXIMA_DOS_VEICULOS) {
                 minDistance = distancia.doubleValue();
                 nearest = centroid;
             }
@@ -99,7 +102,7 @@ public class KlusterMean {
         return clusters.entrySet().stream().map(e -> average(e.getKey(), e.getValue())).collect(toList());
     }
 
-    public static List<Centroid> gerarCentroids(List<Pedido> pedidos, int k) {
+    public static List<Centroid> gerarCentroids(List<Pedido> pedidos, int k, MapaPrincipal mapa) {
         List<Centroid> centroids = new ArrayList<>();
         BigDecimal maxX = null;
         BigDecimal minX = null;
@@ -131,7 +134,7 @@ public class KlusterMean {
                 y = y.remainder(maxY);
                 x = y.multiply(new BigDecimal(cosseno(tetha)).setScale(2, RoundingMode.HALF_UP));
             }
-            Centroid centro = new Centroid(new Point(x.intValue(), y.intValue()));
+            Centroid centro = new Centroid(new Point(x.intValue(), y.intValue()),mapa.def);
             centroids.add(centro);
         }
         return centroids;
