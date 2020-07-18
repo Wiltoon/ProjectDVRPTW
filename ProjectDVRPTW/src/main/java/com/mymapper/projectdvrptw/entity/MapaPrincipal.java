@@ -40,13 +40,17 @@ public class MapaPrincipal {
      */
     private int capacityMax = 0;
     /**
-     * Lista de todos os pedidos
+     * Lista de todos os pedidos sem o DEPOSITO
      */
     private List<Pedido> allPedidos = new ArrayList<>();
     /**
      * Primeiro a ser definido no init
      */
     private VRPTW problem = new VRPTW();
+    /**
+     * Pedido atribuido ao deposito
+     */
+    private Pedido DEPOSITO = new Pedido();
     /**
      * Definido no init
      */
@@ -55,6 +59,7 @@ public class MapaPrincipal {
     public void initMapa(VRPTW vrptw){
         setProblem(vrptw);
         def.DEPOSITO = RequestVRP.requestPoint(vrptw.getRequests().get(0));
+        this.DEPOSITO = new Pedido(vrptw.getRequests().get(0));
         def.CAPACIDADE_MAXIMA_DOS_VEICULOS = vrptw.getCapacity();
         def.QTD_TOTAL_DE_VEICULOS = vrptw.getNrVehicles();
         for(int id = 1; id <= def.QTD_TOTAL_DE_VEICULOS;id++){
@@ -66,8 +71,8 @@ public class MapaPrincipal {
                     def.DEPOSITO);
             getAllVehicles().add(vehicle);
         }
-        for(RequestVRP req : vrptw.getRequests()){
-            Pedido pedido = new Pedido(req);
+        for(int i = 1; i < vrptw.getRequests().size() ; i++){
+            Pedido pedido = new Pedido(vrptw.getRequests().get(i));
             getAllPedidos().add(pedido);
         }
         ControllerEstatic.criarCentroidesRotas(this);

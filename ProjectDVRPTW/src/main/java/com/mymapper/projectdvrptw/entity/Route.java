@@ -81,6 +81,44 @@ public class Route {
         setPedidosOrdenados(pedidosL);
     }
 
+    public void heuristicaAestrela(Definy definicoes, List<Pedido> pedidos) {
+        //State inicial = DEPOSITO
+        //DEPOSITO -> 1 ; DEPOSITO -> 2 ; DEPOSITO -> 3 
+        List<Pedido> pedidoComDeposito = new ArrayList<>();
+        List<State> stateVisitados = new ArrayList<>();
+        List<State> stateNaoVisitados = new ArrayList<>();
+        pedidoComDeposito = pedidos;
+        pedidoComDeposito.add(new Pedido(definicoes.DEPOSITO));
+        pedidoComDeposito.add(0, new Pedido(definicoes.DEPOSITO));
+        BigDecimal score = BigDecimal.ZERO;
+        State estadoAtual = new State(pedidoComDeposito, definicoes.DEPOSITO, score);
+        stateVisitados.add(estadoAtual);
+        long node = 0;
+        while (!estadoFinal(estadoAtual)) {
+            State proximoState = estadoAtual.proxState(estadoAtual, stateNaoVisitados);
+            estadoAtual = new State(proximoState);
+            node++;
+            System.out.println("Nodes = "+node);
+        }
+        System.out.println("Score = "+estadoAtual.getScore());
+        setPedidosOrdenados(estadoAtual.getPedidosVisitados());
+    }
+
+    public boolean estadoFinal(State estadoAtual) {
+        return estadoAtual.getPedidosNaoVisitados().isEmpty();
+    }
+
+    public State chooserBestState(List<State> states) {
+        BigDecimal melhorScore = BigDecimal.valueOf(100 * 100 * 100 * 100);
+        State choose = new State();
+        for (State state : states) {
+            if (state.getScore().compareTo(melhorScore) < 0) {
+                choose = state;
+            }
+        }
+        return choose;
+    }
+
     /**
      * Depois que tiver o pedidosOrdenados
      *

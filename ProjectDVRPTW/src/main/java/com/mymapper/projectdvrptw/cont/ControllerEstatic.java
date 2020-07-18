@@ -38,7 +38,7 @@ public class ControllerEstatic {
         Map<Centroid,List<Pedido>> mapper = new HashMap<Centroid,List<Pedido>>();
         do{
             mapper = KlusterMean.fit(Kreg, mapa.getAllPedidos(), mapa);
-        }while(Kminimo > mapper.size());
+        }while(Kminimo+1 > mapper.size());
         for(Centroid key : mapper.keySet()){
             key.setPedidos(mapper.get(key));
             mapa.adicionaZona(key);            
@@ -54,7 +54,7 @@ public class ControllerEstatic {
             Vehicle car = Vehicle.usarVehicle(id, mapa);
             car.setUsado(Boolean.TRUE);
             car.setRotaSelecionada(cent.getRotas().get(0));
-            car.getRotaSelecionada().sortPedidos(mapa.def, cent.getPedidos());
+            car.getRotaSelecionada().heuristicaAestrela(mapa.def, cent.getPedidos());
             car.getRotaSelecionada().distanceAndTimeForRoute(mapa.def);
             cent.setVeiculoSelecionado(car);
         }
