@@ -21,7 +21,7 @@ public class ControllerMain extends Thread {
     @Override
     public void run() {
         long startTime = 0;
-        long endTime = 100 * 1000;
+        long endTime = 1 * 1000;
         while (startTime < endTime) {
             try {
                 sleep(20);

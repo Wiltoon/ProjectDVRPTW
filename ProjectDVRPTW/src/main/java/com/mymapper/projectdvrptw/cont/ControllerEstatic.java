@@ -25,6 +25,7 @@ public class ControllerEstatic {
      * @param mapa 
      */
     public static void criarCentroidesRotas(MapaPrincipal mapa){
+        long node = 0;
         //Por K-Means
         //Qtd de carros necessarios
         mapa.capacityTotal();
@@ -37,15 +38,19 @@ public class ControllerEstatic {
         }
         Map<Centroid,List<Pedido>> mapper = new HashMap<Centroid,List<Pedido>>();
         do{
+            node++;
             mapper = KlusterMean.fit(Kreg, mapa.getAllPedidos(), mapa);
-        }while(Kminimo+1 > mapper.size());
+        }while(Kminimo > mapper.size());
         for(Centroid key : mapper.keySet()){
             key.setPedidos(mapper.get(key));
             mapa.adicionaZona(key);            
         }
-        criarRotas(mapa);
+        System.out.println("Total de nós para encontrar os clusters: "+ node);
+        criarRotas(mapa, node);
+        System.out.println("Total de nós visitados: "+ node);
+        System.out.println("Total de nós visitados com heurística: "+ (node));
     }
-    public static void criarRotas(MapaPrincipal mapa){
+    public static void criarRotas(MapaPrincipal mapa, long node){
         int id = 0;
         for(Centroid cent : mapa.getZonas()){
             cent.constroiRota();
@@ -54,7 +59,7 @@ public class ControllerEstatic {
             Vehicle car = Vehicle.usarVehicle(id, mapa);
             car.setUsado(Boolean.TRUE);
             car.setRotaSelecionada(cent.getRotas().get(0));
-            car.getRotaSelecionada().heuristicaAestrela(mapa.def, cent.getPedidos());
+            car.getRotaSelecionada().heuristicaAestrela(mapa.def, cent.getPedidos(),node);
             car.getRotaSelecionada().distanceAndTimeForRoute(mapa.def);
             cent.setVeiculoSelecionado(car);
         }
